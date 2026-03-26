@@ -1,5 +1,5 @@
-# Project Name
-Put here a short paragraph describing your project. 
+# Gacha SSR Simulator
+A web-based probability analysis tool for gacha games. Select your game, input your current currency, and instantly see the expected pull count, cumulative probability curves, and a histogram showing your realistic odds of obtaining a high-rarity (SSR) character. Currently supports Fate/Grand Order and Uma Musume, with soft pity, hard pity, and rate-up mechanics all factored in.
 Adding an screenshot or a mockup of your application in action would be nice.  
 
 ![This is a screenshot.](images.png)
