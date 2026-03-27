@@ -17,7 +17,7 @@ tar -xzf
 - You will see Hello World! on your terminal. 
 
 # How to contribute
-Follow this project board to know the latest status of the project: [http://...]([http://...])  
+Follow this project board to know the latest status of the project: https://github.com/cis3296s26/final-project-03-gachaprobabilitymodel.git
 
 ### How to build
 - Use this github repository: https://github.com/cis3296s26/final-project-03-gachaprobabilitymodel
