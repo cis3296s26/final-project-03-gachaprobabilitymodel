@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+body{
+  margin:0;
+  background:linear-gradient(to bottom, #ffe3f1, #f3e5ff);
+  font-family:'Poppins', sans-serif;
+}
+
+.top{
+  background:linear-gradient(to right, #e6438f, #6b1fa1);
+  color:white;
+  text-align:center;
+  padding:20px;
+  font-size:30px;
+}
+
+.box{
+  width:700px;
+  max-width:90%;
+  margin:auto;
+  margin-top:40px;
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+.row{
+  display:flex;
+  margin-bottom:15px;
+  gap:10px;
+}
+
+input, select{
+  width:100%;
+  padding:12px;
+  border:1px solid #d9b3e6;
+  border-radius:10px;
+  background:#fff7fc;
+  font-size:15px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:linear-gradient(to right, #e6438f, #6b1fa1);
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+#results{
+  margin-top:25px;
+}
+
+.card{
+  background:#fff0f7;
+  border-left:5px solid #e6438f;
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+</style>
+</head>
+<body>
+
+<div class="top">Gacha SSR Simulator</div>
+
+<div class="box">
+  <div class="row">
+    <input id="goal" type="number" placeholder="Target SSRs" value="1">
+    <input id="rate" type="number" placeholder="SSR Rate %" value="1">
+  </div>
+
+  <div class="row">
+    <select id="banner">
+      <option>Standard Banner</option>
+      <option>Limited Banner</option>
+      <option>Event Banner</option>
+    </select>
+
+    <input id="pulls" type="number" placeholder="Max Pulls" value="100">
+  </div>
+
+  <button onclick="calc()">Calculate</button>
+
+  <div id="results"></div>
+</div>
+
+<script>
+function calc(){
+  let goal = +goal.value;
+  let rate = +rate.value / 100;
+  let max = +pulls.value;
+
+  let text = "";
+
+  for(let i=10;i<=max;i+=10){
+    let chance = (1 - Math.pow(1-rate,i)) * 100;
+
+    if(goal > 1) chance = Math.pow(chance/100,goal) * 100;
+
+    text += `
+      <div class="card">
+        After <b>${i}</b> pulls: <b>${chance.toFixed(1)}%</b> chance
+      </div>`;
+  }
+
+  results.innerHTML = text;
+}
+</script>
+
+</body>
+</html>
