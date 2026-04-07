@@ -1,0 +1,10 @@
+def HoyoverseGames(rolls):
+    chance = 0
+    if rolls < 75:
+        chance = 0.6
+    elif rolls == 90:
+        chance = 100
+    else:
+        chance = 0.6 + (6 * (rolls - 74))
+
+    return chance
