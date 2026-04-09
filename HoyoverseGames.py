@@ -1,3 +1,5 @@
+import geometric
+from flask import Flask, request, jsonify
 def HoyoverseGames(rolls):
     chance = 0
     if rolls < 75:
