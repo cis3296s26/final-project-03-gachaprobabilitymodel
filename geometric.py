@@ -12,7 +12,8 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
     pulls = []
     successes = 0
     firstHit = None
-
+    featuredSuccesses = 0
+    firstFeaturedHit = None
     rollResults = []
 
     for roll in range(1, rolls + 1):
@@ -29,8 +30,20 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
             # Check if it's the featured unit
             isFeatured = False
             featuredName = None
-            
-            if checkExternal:
+
+            if featuredRate is not None:
+                # Second check for featured unit if pull was SSR
+                if random.random() < featuredRate:
+                    isFeatured = True
+                    featuredName = "Featured Unit"
+                    featuredSuccesses += 1
+                    if firstFeaturedHit is None:
+                        firstFeaturedHit = roll
+                else:
+                    isFeatured = False
+                    featuredName = "Off rate Unit"
+
+            elif checkExternal is not None:
                 isFeatured, featuredName = checkExternal(roll)
                 if isFeatured:
                     featuredSuccesses += 1
