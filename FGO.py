@@ -1,15 +1,24 @@
-def FGO(rolls):
+import random
+def FGOrate(rolls):
 
-    chance_per_pull = 1
-    featured_rate = 0.8
+    chance = 0.01
 
     if rolls >= 330:
-        featured_chance = 100
-    else:
-        featured_chance = 100 - (100 - featured_rate) ** rolls
-        unit_chance = 100 - (100 - chance_per_pull) ** rolls
+        return 1.0
 
-    return {
-        "featured SSR probability": featured_chance,
-        "other SSR probability": unit_chance
-    }
+    return chance
+
+def check_fgo_featured(roll, SSRcount = 0, guaranteed = False):
+    featuredChance = 0.8  # 80% chance for featured
+    
+    if guaranteed:
+        isFeatured = True
+    else:
+        isFeatured = random.random() < featuredChance
+
+    character = "Featured SSR" if isFeatured else "Off-rate SSR"
+
+    return isFeatured, character
+
+def FGORateCalc(roll, pityCounter=None):
+    return FGOrate(roll)
