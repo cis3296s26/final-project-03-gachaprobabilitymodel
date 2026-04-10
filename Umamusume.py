@@ -1,15 +1,25 @@
-def FGO(rolls):
+import random
+def UMArate(rolls):
 
-    chance_per_pull = 3
-    featured_rate = 0.75
+    chance = 0.03
 
     if rolls >= 200:
-        featured_chance = 100
-    else:
-        featured_chance = 100 - (100 - featured_rate) ** rolls
-        unit_chance = 100 - (100 - chance_per_pull) ** rolls
+        return 1.0
 
-    return {
-        "featured SSR probability": featured_chance,
-        "other SSR probability": unit_chance
-    }
+    return chance
+
+def check_uma_featured(roll, SSRcount = 0, guaranteed = False):
+    featuredChance = 0.225  # 22.5% chance for featured. 
+                            # 3% * 0.75% is the chance of getting the fatured item
+    
+    if guaranteed:
+        isFeatured = True
+    else:
+        isFeatured = random.random() < featuredChance
+
+    character = "Featured SSR" if isFeatured else "Off-rate SSR"
+
+    return isFeatured, character
+
+def UMARateCalc(roll, pityCounter=None):
+    return UMArate(roll)
