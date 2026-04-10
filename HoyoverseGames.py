@@ -1,12 +1,26 @@
 import geometric
 from flask import Flask, request, jsonify
-def HoyoverseGames(rolls):
-    chance = 0.0
+def HoyoverseRate(roll, pitySSR=False):
     if rolls < 75:
-        chance = 0.6
+        chance = 0.006
     elif rolls >= 90:
-        chance = 100.0
+        chance = 1.0
     else:
-        chance = 0.6 + (6 * (rolls - 74))
+        chance = 0.006 + (0.06 * (roll - 74))
 
-    return chance
+# Pity rule for SSR if previous is not featured then next SSR is guaranteed to be featured
+def pitySystem(roll, previousSSRcount = 0, lastFeaturedRoll = None):
+    featuredChance = 0.5
+    #  Checks the last featured roll was 90 or more rolls ago, guaranteeing the next SSR is featured
+    if lastFeaturedRoll is not None and roll - lastFeaturedRoll >= 90:
+        return 1.0
+    elif previousSSRcount > 0 and (roll - lastFeaturedRoll) >= 75:
+        return 1.0
+    else:
+        return featuredChance
+
+    isFeatured = random.random() < featuredChance
+    return isFeatured, character
+
+def hoyoverseRateCalc(roll, pityCounter=None):
+    return HoyoverseRate(roll)
