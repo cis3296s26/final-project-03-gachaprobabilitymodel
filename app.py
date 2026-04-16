@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from Average import Average
 from Median import median
 from geometric import gachaModel
+from FGO import FGOrate
+from Umamusume import UMArate
 import random
 
 app = Flask(__name__)
@@ -41,28 +43,24 @@ def currency_route():
 # Main probability calculation 
 @app.route("/calculate", methods=["POST"])
 def calculate():
-    try:
         data = request.get_json()
         game_id = data.get("game")
         currency = int(data.get("currency", 0))
         tickets = int(data.get("tickets", 0))
-        
         game = GAMES.get(game_id)
         if not game:
             return jsonify({"error": "Game not found"}), 404
         
+        
+        
         # Calculate total pulls
         pulls = currency // game["cost_per_pull"] + tickets
-        
-        if pulls <= 0:
-            return jsonify({
-                "game": game["name"],
-                "total_pulls": 0,
-                "probability": 0,
-                "average_pulls": 0,
-                "median_pulls": 0,
-                "error": "Not enough currency to pull"
-            })
+        rate = game["base_rate"]
+
+        prob_cards =[]
+        for i in range(pulls):
+             chance = (1 - (1 - rate) ** (i + 1)) * 100
+             prob_cards.append(chance)
         
         # Call gachaModel with proper parameters
         # gachaModel(currency, cost, rate, seed)
@@ -73,15 +71,6 @@ def calculate():
             seed=random.randint(1, 10000)
         )
         
-        if result is None:
-            return jsonify({
-                "game": game["name"],
-                "total_pulls": pulls,
-                "probability": 0,
-                "average_pulls": 0,
-                "median_pulls": 0
-            })
-        
         # Extract values from result
         probability = result.get("empirical_success_rate", 0)
         avg_pulls = result.get("empirical_mean", 0)
@@ -90,17 +79,14 @@ def calculate():
         success_positions = result.get("success_positions", [])
         median_pulls = median(success_positions) if success_positions else 0
         
-        return jsonify({
-            "game": game["name"],
-            "total_pulls": pulls,
-            "probability": probability,
-            "average_pulls": round(avg_pulls, 2),
-            "median_pulls": round(median_pulls, 2),
-            "actual_successes": result.get("successes", 0)
-        })
         
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
+        return jsonify({
+                "game": game["name"],
+                "total_pulls": pulls,
+                "probability": round((1 - (1 - rate) ** pulls) * 100, 2),
+                "average_pulls": round(1 / rate, 2),
+                "median_pulls": 0,
+                "prob_cards": prob_cards
+            })
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
