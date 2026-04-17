@@ -51,42 +51,37 @@ def calculate():
         if not game:
             return jsonify({"error": "Game not found"}), 404
         
-        
-        
         # Calculate total pulls
-        pulls = currency // game["cost_per_pull"] + tickets
+        total_pulls = currency // game["cost_per_pull"] + tickets
         rate = game["base_rate"]
-
-        prob_cards =[]
-        for i in range(pulls):
-             chance = (1 - (1 - rate) ** (i + 1)) * 100
-             prob_cards.append(chance)
         
-        # Call gachaModel with proper parameters
-        # gachaModel(currency, cost, rate, seed)
+        # Use gachaModel to simulate the pulls
         result = gachaModel(
             currency=currency if currency > 0 else game["cost_per_pull"],
             cost=game["cost_per_pull"],
-            rate=game["base_rate"],
+            rate=rate,
             seed=random.randint(1, 10000)
         )
         
-        # Extract values from result
-        probability = result.get("empirical_success_rate", 0)
-        avg_pulls = result.get("empirical_mean", 0)
+        # Extract success positions from result
+        success_positions = result.get("success_positions", []) if result else []
         
-        # Calculate median manually if needed
-        success_positions = result.get("success_positions", [])
-        median_pulls = median(success_positions) if success_positions else 0
-        
+        # Calculate statistics
+        if success_positions:
+            avg_pulls = Average(success_positions)
+            median_pulls = median(success_positions)
+            probability = (len(success_positions) / total_pulls * 100) if total_pulls > 0 else 0
+        else:
+            avg_pulls = 0
+            median_pulls = 0
+            probability = 0
         
         return jsonify({
                 "game": game["name"],
-                "total_pulls": pulls,
-                "probability": round((1 - (1 - rate) ** pulls) * 100, 2),
-                "average_pulls": round(1 / rate, 2),
-                "median_pulls": 0,
-                "prob_cards": prob_cards
+                "total_pulls": total_pulls,
+                "probability": round(probability, 2),
+                "average_pulls": round(avg_pulls, 2),
+                "median_pulls": round(median_pulls, 2)
             })
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
