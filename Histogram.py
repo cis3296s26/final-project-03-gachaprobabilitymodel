@@ -94,13 +94,14 @@ class GachaSimulation:
         
         if game_config:
             # Use game-specific simulation
-            result = self._simulate_with_config(game_config, currency, game)
+            result = self.simulateConfig(game_config, currency, game)
         else:
             # Use default simulation
             result = self.simulateDefault(currency, game)
         
         return result
-    def simulateDefault(self, currency: int, game: Dict) -> Optional[Dict]:
+    # Simulation that uses specific rates and has external rulings
+    def simulateConfig(self, currency: int, game: Dict) -> Optional[Dict]:
         if game_config.get("needs_state", False):
             self._hoyo_last_featured = None
             self._hoyo_lost_50_50 = False
@@ -120,5 +121,14 @@ class GachaSimulation:
         )
         
         return result
-
+    # Default simulation using base rate without special extra checks
+    def simulateDefault(self, currency: int, game: Dict) -> Optional[Dict]:
+        return gachaModel(
+            currency=currency,
+            cost=game["cost_per_pull"],
+            rate=game["base_rate"],
+            seed=self.seed if self.seed else random.randint(1, 999999),
+            featuredRate=None,
+            checkExternal=None
+        )
 
