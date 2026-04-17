@@ -148,7 +148,32 @@ function displayResults(data) {
   `;
   document.getElementById("results").innerHTML = html;
 }
-</script>
+<script>
+  async function calc() {
+    let rate     = Number(document.getElementById('rate').value) / 100;
+    let maxPulls = Number(document.getElementById('pulls').value);
+    let target   = Number(document.getElementById('goal').value);
 
+    const res = await fetch("/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game: "fgo", currency: target * 3, tickets: 0 })
+    });
+
+    const data = await res.json();
+
+    document.getElementById('mainChance').innerText = data.final_chance + '%';
+    document.getElementById('avg').innerText        = data.avg_pulls + ' Pulls';
+
+    let text = '';
+    data.prob_cards.forEach(c => {
+        text += `<div class="chance-card">
+            After <b>${c.pulls}</b> pulls you have a <b>${c.chance}%</b> chance of getting the SSR.
+        </div>`;
+    });
+
+    document.getElementById('results').innerHTML = text;
+}
+</script>
 </body>
 </html>
