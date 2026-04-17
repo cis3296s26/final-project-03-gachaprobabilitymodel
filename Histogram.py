@@ -132,3 +132,47 @@ class GachaSimulation:
             checkExternal=None
         )
 
+    # Tester function will delete later
+    def simulateDirect(self, currency: int, cost: int, rate: float,
+                       game_type: str = "default") -> Optional[Dict]:
+        # Direct Simulation for testing logic for tester later 
+        if game_type == "fgo":
+            result = gachaModel(
+                currency=currency,
+                cost=cost,
+                rate=rate,
+                seed=self.seed if self.seed else random.randint(1, 999999),
+                checkExternal=check_fgo_featured
+            )
+        elif game_type == "uma":
+            result = gachaModel(
+                currency=currency,
+                cost=cost,
+                rate=rate,
+                seed=self.seed if self.seed else random.randint(1, 999999),
+                checkExternal=check_uma_featured
+            )
+        elif game_type in ["genshin", "hoyoverse"]:
+            # Reset state for direct simulation
+            self._hoyo_last_featured = None
+            
+            def hoyo_wrapper(roll, ssr_count=0):
+                return self._hoyoverse_featured_wrapper(roll, ssr_count)
+            
+            result = gachaModel(
+                currency=currency,
+                cost=cost,
+                rate=rate,
+                seed=self.seed if self.seed else random.randint(1, 999999),
+                checkExternal=hoyo_wrapper
+            )
+        else:
+            result = gachaModel(
+                currency=currency,
+                cost=cost,
+                rate=rate,
+                seed=self.seed if self.seed else random.randint(1, 999999),
+                featuredRate=None
+            )
+        
+        return result
