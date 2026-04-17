@@ -5,6 +5,8 @@ from geometric import gachaModel
 from FGO import FGOrate
 from Umamusume import UMArate
 import random
+from flask import Flask, request, jsonify, render_template
+import geometric
 
 app = Flask(__name__)
 
@@ -18,27 +20,35 @@ GAMES = {
 def home():
     with open("ui.html") as f:
         return f.read()
-    
-# Game selection
 @app.route("/select_game/<game_id>")
 def select_game(game_id):
     game = GAMES.get(game_id)
+
     if not game:
-        return "Game not found", 404
+        return jsonify({"error": "Game not found"}), 404
+
     return jsonify(game)
 
 # Currency input and pull calculation
 @app.route("/currency", methods=["POST"])
 def currency_route():
     data = request.get_json()
+
     game_id = data.get("game")
     currency = int(data.get("currency", 0))
     tickets = int(data.get("tickets", 0))
+
     game = GAMES.get(game_id)
+
     if not game:
-        return "Game not found", 404
+        return jsonify({"error": "Game not found"}), 404
+
     pulls = currency // game["cost_per_pull"] + tickets
-    return jsonify({"game": game["name"], "total_pulls": pulls})
+
+    return jsonify({
+        "game": game["name"],
+        "total_pulls": pulls
+    })
 
 # Main probability calculation 
 @app.route("/calculate", methods=["POST"])
@@ -84,4 +94,4 @@ def calculate():
                 "median_pulls": round(median_pulls, 2)
             })
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
