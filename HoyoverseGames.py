@@ -7,6 +7,7 @@ def HoyoverseRate(roll, pitySSR=False):
         chance = 1.0
     else:
         chance = 0.006 + (0.06 * (roll - 74))
+    return chance
 
 # Pity rule for SSR if previous is not featured then next SSR is guaranteed to be featured
 def HoyoversePitySystem(roll, previousSSRcount=0, lastFeaturedRoll=None):
