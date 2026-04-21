@@ -1,11 +1,21 @@
 import math
 import random
+import Average
+import Median
 from collections import Counter
 
-def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: float = None, checkExternal: float = None): 
+def gachaModel(
+    currency: int,
+    cost: int,
+    rate: float,
+    seed: int,
+    featuredRate: float = None,
+    checkExternal = None
+):
     if currency < cost:
-        print ("Not enough currency to pull.")
+        print("Not enough currency to pull.")
         return None
+
     random.seed(seed)
 
     rolls = currency // cost
@@ -17,22 +27,19 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
     rollResults = []
 
     for roll in range(1, rolls + 1):
-        # Get current rate based on pity system
         currentRate = rateCalculator(roll)
-        
-        # Check if SSR is hit
+
         if random.random() < currentRate:
             successes += 1
             pulls.append(roll)
+
             if firstHit is None:
                 firstHit = roll
-            
-            # Check if it's the featured unit
+
             isFeatured = False
             featuredName = None
 
             if featuredRate is not None:
-                # Second check for featured unit if pull was SSR
                 if random.random() < featuredRate:
                     isFeatured = True
                     featuredName = "Featured Unit"
@@ -64,12 +71,12 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
                 "featured_name": None
             })
 
-    # Calculate statistics
-    empMean = sum(pulls) / successes if successes > 0 else 0
+    empMean = Average(pulls) if successes > 0 else 0
+    empMedian = Median(pulls) if successes > 0 else 0
     theoMean = 1 / rate
-    
-    # Calculate average rate for variance
-    avgRate = sum(rateCalculator(roll) for roll in range(1, rolls + 1)) / rolls
+
+    rates = [rateCalculator(roll) for roll in range(1, rolls + 1)]
+    avgRate = Average(rates) if len(rates) > 0 else 0
     theoVariance = (1 - avgRate) / (avgRate ** 2) if avgRate > 0 else 0
 
     empSuccessRate = successes / rolls
@@ -77,7 +84,7 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
 
     pmf = {k: ((1 - rate) ** (k - 1)) * rate for k in range(1, rolls + 1)}
     cdf = {k: 1 - (1 - rate) ** k for k in range(1, rolls + 1)}
-    
+
     return {
         "total_rolls": rolls,
         "successes": successes,
@@ -85,12 +92,14 @@ def gachaModel(currency: int, cost: int, rate: float, seed: int, featuredRate: f
         "first_success_at": firstHit,
         "first_featured_at": firstFeaturedHit,
         "success_positions": pulls,
-        "featured_positions": [r["roll"] for r in rollResults if r.get("is_featured")],
+        "featured_positions": [r["roll"] for r in rollResults if r.get("featured")],
         "empirical_mean": empMean,
+        "empirical_median": empMedian,
         "theoretical_mean": theoMean,
         "theoretical_variance": theoVariance,
         "empirical_success_rate": empSuccessRate,
         "featured_rate_empirical": featuredRateEmp,
+        "pmf": pmf,
+        "cdf": cdf,
         "roll_details": rollResults
     }
-
