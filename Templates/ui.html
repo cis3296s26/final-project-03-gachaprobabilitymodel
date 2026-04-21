@@ -137,7 +137,7 @@ function displayResults(data) {
       <b>Total Pulls:</b> ${data.total_pulls}
     </div>
     <div class="card">
-      <b>Success Probability:</b> ${(data.probability * 100).toFixed(2)}%
+      <b>Success Probability:</b> ${data.probability.toFixed(2)}%
     </div>
     <div class="card">
       <b>Average Pulls to First SSR:</b> ${data.average_pulls}
@@ -148,7 +148,7 @@ function displayResults(data) {
   `;
   document.getElementById("results").innerHTML = html;
 }
-<script>
+<script/>
   async function calc() {
     let rate     = Number(document.getElementById('rate').value) / 100;
     let maxPulls = Number(document.getElementById('pulls').value);

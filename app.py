@@ -1,12 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from Average import Average
 from Median import median
 from geometric import gachaModel
 from FGO import FGOrate
 from Umamusume import UMArate
 import random
-from flask import Flask, request, jsonify, render_template
-import geometric
+
 
 app = Flask(__name__)
 
@@ -18,8 +17,8 @@ GAMES = {
 
 @app.route("/")
 def home():
-    with open("ui.html") as f:
-        return f.read()
+    return render_template("ui.html")
+
 @app.route("/select_game/<game_id>")
 def select_game(game_id):
     game = GAMES.get(game_id)
@@ -66,15 +65,16 @@ def calculate():
         rate = game["base_rate"]
         
         # Use gachaModel to simulate the pulls
-        result = gachaModel(
-            currency=currency if currency > 0 else game["cost_per_pull"],
-            cost=game["cost_per_pull"],
-            rate=rate,
-            seed=random.randint(1, 10000)
-        )
-        
-        # Extract success positions from result
-        success_positions = result.get("success_positions", []) if result else []
+        if total_pulls == 0:
+            success_positions = []
+        else:
+            result = gachaModel(
+                currency=total_pulls * game["cost_per_pull"],
+                cost=game["cost_per_pull"],
+                rate=rate,
+                seed=random.randint(1, 10000)
+            )
+            success_positions = result.get("success_positions", []) if result else []
         
         # Calculate statistics
         if success_positions:
