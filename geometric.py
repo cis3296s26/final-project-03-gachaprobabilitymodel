@@ -30,6 +30,7 @@ def gachaModel(
         currentRate = rateCalculator(roll)
 
         if random.random() < currentRate:
+        # Check if SSR is hit
             successes += 1
             pulls.append(roll)
 
@@ -78,8 +79,11 @@ def gachaModel(
     rates = [rateCalculator(roll) for roll in range(1, rolls + 1)]
     avgRate = Average(rates) if len(rates) > 0 else 0
     theoVariance = (1 - avgRate) / (avgRate ** 2) if avgRate > 0 else 0
+    
+    # Calculate variance
+    theoVariance = (1 - rate) / (rate ** 2) if rate > 0 else 0
 
-    empSuccessRate = successes / rolls
+    empSuccessRate = successes / rolls if rolls > 0 else 0
     featuredRateEmp = featuredSuccesses / successes if successes > 0 else 0
 
     pmf = {k: ((1 - rate) ** (k - 1)) * rate for k in range(1, rolls + 1)}

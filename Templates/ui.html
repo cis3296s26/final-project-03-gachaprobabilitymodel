@@ -1,410 +1,179 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gacha Calculator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+body{
+  margin:0;
+  background:linear-gradient(to bottom, #ffe3f1, #f3e5ff);
+  font-family:'Poppins', sans-serif;
+}
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+.top{
+  background:linear-gradient(to right, #e6438f, #6b1fa1);
+  color:white;
+  text-align:center;
+  padding:20px;
+  font-size:30px;
+}
 
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background:
-                radial-gradient(circle at top left, rgba(255,120,210,0.18), transparent 30%),
-                radial-gradient(circle at top right, rgba(120,160,255,0.18), transparent 35%),
-                linear-gradient(to bottom, #141625, #1d1f35 40%, #10111d);
-            color: white;
-            overflow-x: hidden;
-        }
+.box{
+  width:700px;
+  max-width:90%;
+  margin:auto;
+  margin-top:40px;
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
 
-        .top {
-            background: linear-gradient(to right, rgba(255,94,168,0.95), rgba(141,77,255,0.95));
-            text-align: center;
-            padding: 34px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-            border-bottom: 2px solid rgba(255,255,255,0.08);
-            position: relative;
-            overflow: hidden;
-        }
+.row{
+  display:flex;
+  margin-bottom:15px;
+  gap:10px;
+}
 
-        .top::before {
-            content: "✦ ✧ ✦";
-            position: absolute;
-            left: 30px;
-            top: 18px;
-            font-size: 26px;
-            color: rgba(255,255,255,0.35);
-            letter-spacing: 10px;
-        }
+input, select{
+  width:100%;
+  padding:12px;
+  border:1px solid #d9b3e6;
+  border-radius:10px;
+  background:#fff7fc;
+  font-size:15px;
+}
 
-        .top::after {
-            content: "✦ ✧ ✦";
-            position: absolute;
-            right: 30px;
-            bottom: 18px;
-            font-size: 26px;
-            color: rgba(255,255,255,0.35);
-            letter-spacing: 10px;
-        }
+button{
+  width:100%;
+  padding:12px;
+  background:linear-gradient(to right, #e6438f, #6b1fa1);
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
 
-        .top h1 {
-            margin: 0;
-            font-size: 42px;
-            letter-spacing: 2px;
-        }
+#results{
+  margin-top:25px;
+}
 
-        .top p {
-            margin-top: 8px;
-            color: #f3d7ff;
-            font-size: 14px;
-        }
-
-        .container {
-            width: 1100px;
-            max-width: 92%;
-            margin: 35px auto;
-            display: flex;
-            gap: 25px;
-        }
-
-        .left, .right {
-            background: linear-gradient(to bottom, #2c2f47, #252842);
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.28);
-            border: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-
-        .left::before, .right::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            border-radius: 24px 24px 0 0;
-            background: linear-gradient(to right, #ff5ea8, #8d4dff, #6bd5ff);
-        }
-
-        .left {
-            width: 45%;
-        }
-
-        .right {
-            width: 55%;
-        }
-
-        h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #ffd36f;
-            font-size: 24px;
-        }
-
-        .row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .field {
-            width: 100%;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #d9dcff;
-            font-size: 14px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background: #3c4060;
-            border: 1px solid #62688f;
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #ff79bf;
-            box-shadow: 0 0 10px rgba(255,121,191,0.4);
-        }
-
-        .options {
-            margin-top: 20px;
-            background: #383c59;
-            padding: 15px;
-            border-radius: 14px;
-        }
-
-        .options label {
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .options input {
-            width: auto;
-            margin-right: 8px;
-            accent-color: #ff5ea8;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(to right, #ff5ea8, #8d4dff);
-            color: white;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px rgba(255,94,168,0.5);
-        }
-
-        .card {
-            background: linear-gradient(to right, rgba(68,73,108,0.95), rgba(58,63,95,0.95));
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 14px;
-            border-left: 5px solid #ff5ea8;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::after {
-            content: "✦";
-            position: absolute;
-            right: 14px;
-            top: 10px;
-            color: rgba(255,255,255,0.14);
-            font-size: 22px;
-        }
-
-        .small {
-            color: #b8bddf;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-
-        .big {
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        #results {
-            margin-top: 20px;
-        }
-
-        .chance-card {
-            background: #42476a;
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 12px;
-        }
-
-        .graph {
-            margin-top: 20px;
-            height: 220px;
-            background: #3a3f5f;
-            border-radius: 14px;
-            padding: 15px;
-            position: relative;
-        }
-
-        .bar {
-            position: absolute;
-            bottom: 20px;
-            width: 45px;
-            border-radius: 10px 10px 0 0;
-            background: linear-gradient(to top, #ff5ea8, #ffb6dd);
-        }
-
-        .b1 { left: 50px; height: 50px; }
-        .b2 { left: 120px; height: 90px; }
-        .b3 { left: 190px; height: 150px; }
-        .b4 { left: 260px; height: 110px; }
-        .b5 { left: 330px; height: 70px; }
-    </style>
+.card{
+  background:#fff0f7;
+  border-left:5px solid #e6438f;
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+</style>
 </head>
 <body>
 
-    <div class="top">
-        <h1>Gacha Calculator</h1>
-        <p>Find out your pull chances, pity, and expected cost</p>
-    </div>
+<div class="top">Gacha SSR Simulator</div>
 
-    <div class="container">
+<div class="box">
+  <div class="row">
+    <select id="game">
+      <option value="fgo">Fate/Grand Order</option>
+      <option value="uma">Uma Musume</option>
+      <option value="hoyverse">Honkai: Star Rail</option>
+    </select>
+  </div>
 
-        <div class="left">
-            <h2>Calculator Settings</h2>
+  <div class="row">
+    <input id="currency" type="number" placeholder="Currency (gems/crystals)" value="0">
+    <input id="tickets" type="number" placeholder="Pull Tickets" value="0">
+  </div>
 
-            <div class="row">
-                <div class="field">
-                    <label>Banner Type</label>
-                    <select id="banner">
-                        <option>Standard Banner</option>
-                        <option>Limited Banner</option>
-                        <option>Event Banner</option>
-                    </select>
-                </div>
+  <button onclick="calculate()">Calculate Probability</button>
 
-                <div class="field">
-                    <label>Item Level</label>
-                    <input id="level" type="number" value="150">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="field">
-                    <label>Current Pull Count</label>
-                    <input id="current" type="number" value="0">
-                </div>
-
-                <div class="field">
-                    <label>Target Pull Count</label>
-                    <input id="goal" type="number" value="100">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="field">
-                    <label>SSR Rate %</label>
-                    <input id="rate" type="number" value="1">
-                </div>
-
-                <div class="field">
-                    <label>Max Pulls</label>
-                    <input id="pulls" type="number" value="200">
-                </div>
-            </div>
-
-            <div class="field">
-                <label>MVP Discount</label>
-                <select>
-                    <option>None</option>
-                    <option>Silver - 3%</option>
-                    <option>Gold - 5%</option>
-                    <option>Diamond - 10%</option>
-                </select>
-            </div>
-
-            <div class="options">
-                <label><input type="checkbox"> Pity Protection</label>
-                <label><input type="checkbox"> Rate Up Bonus</label>
-                <label><input type="checkbox"> Featured Banner Discount</label>
-                <label><input type="checkbox"> Guaranteed Pull Milestone</label>
-                <label><input type="checkbox"> No Fail Event</label>
-                <label><input type="checkbox"> Bonus Luck Time</label>
-            </div>
-
-            <button onclick="calc()">Calculate Chances</button>
-        </div>
-
-        <div class="right">
-            <h2>Results</h2>
-
-            <div class="row">
-                <div class="card" style="width:50%; margin-right:10px;">
-                    <div class="small">Average Pulls Needed</div>
-                    <div class="big" id="avg">0 Pulls</div>
-                </div>
-
-                <div class="card" style="width:50%;">
-                    <div class="small">Chance To Reach Goal</div>
-                    <div class="big" id="mainChance">0%</div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="card" style="width:50%; margin-right:10px;">
-                    <div class="small">Expected Currency Cost</div>
-                    <div class="big" id="cost">0 Gems</div>
-                </div>
-
-                <div class="card" style="width:50%;">
-                    <div class="small">Estimated Pity Reached</div>
-                    <div class="big" id="pity">0 / 90</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="small">SSR Pull Timeline</div>
-                <div id="results"></div>
-            </div>
-
-            <div class="card">
-                <div class="small">Lucky Pull Streak</div>
-                <div style="margin-top:10px; color:#d8dbff; line-height:1.8;">
-                    ★ First SSR before 30 pulls: <span id="early">0%</span><br>
-                    ★ Reach pity without SSR: <span id="fail">0%</span><br>
-                    ★ Pull 2 SSRs in one 10-pull: <span id="double">0%</span>
-                </div>
-            </div>
-
-            <div class="graph">
-                <div style="position:absolute; top:10px; left:15px; color:#d5d8ff; font-size:14px;">Probability Distribution</div>
-                <div class="bar b1"></div>
-                <div class="bar b2"></div>
-                <div class="bar b3"></div>
-                <div class="bar b4"></div>
-                <div class="bar b5"></div>
-                <div style="position:absolute; bottom:0; left:45px; color:#aaa; font-size:12px;">10</div>
-                <div style="position:absolute; bottom:0; left:115px; color:#aaa; font-size:12px;">50</div>
-                <div style="position:absolute; bottom:0; left:185px; color:#aaa; font-size:12px;">90</div>
-                <div style="position:absolute; bottom:0; left:255px; color:#aaa; font-size:12px;">150</div>
-                <div style="position:absolute; bottom:0; left:325px; color:#aaa; font-size:12px;">200</div>
-            </div>
-
-            <div class="card" style="margin-top:20px; background:#353a57; border-left:5px solid #ffd36f;">
-                <div class="small">Simulation Notes</div>
-                <div style="margin-top:8px; color:#d7daff; line-height:1.7; font-size:14px;">
-                    This estimate assumes each pull has the same SSR rate. Pity systems, featured banners, and bonus luck events may increase your final chances.
-                </div>
-            </div>
-        </div>
-
-    </div>
+  <div id="results"></div>
+</div>
 
 <script>
-function calc() {
-    let rate = Number(document.getElementById('rate').value) / 100;
+// Update game info when selection changes
+document.getElementById("game").addEventListener("change", function() {
+  const gameSelect = this.value;
+  fetch(`/select_game/${gameSelect}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log("Game selected:", data);
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+function calculate(){
+  const game = document.getElementById("game").value;
+  const currency = parseInt(document.getElementById("currency").value) || 0;
+  const tickets = parseInt(document.getElementById("tickets").value) || 0;
+
+  const payload = {
+    game: game,
+    currency: currency,
+    tickets: tickets
+  };
+
+  fetch("/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    displayResults(data);
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    document.getElementById("results").innerHTML = `<div class="card">Error: ${error}</div>`;
+  });
+}
+
+function displayResults(data) {
+  let html = `
+    <div class="card">
+      <b>Game:</b> ${data.game}<br>
+      <b>Total Pulls:</b> ${data.total_pulls}
+    </div>
+    <div class="card">
+      <b>Success Probability:</b> ${data.probability.toFixed(2)}%
+    </div>
+    <div class="card">
+      <b>Average Pulls to First SSR:</b> ${data.average_pulls}
+    </div>
+    <div class="card">
+      <b>Median Pulls to First SSR:</b> ${data.median_pulls}
+    </div>
+  `;
+  document.getElementById("results").innerHTML = html;
+}
+<script/>
+  async function calc() {
+    let rate     = Number(document.getElementById('rate').value) / 100;
     let maxPulls = Number(document.getElementById('pulls').value);
-    let target = Number(document.getElementById('goal').value);
+    let target   = Number(document.getElementById('goal').value);
 
-    let finalChance = (1 - Math.pow(1 - rate, target)) * 100;
+    const res = await fetch("/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game: "fgo", currency: target * 3, tickets: 0 })
+    });
 
-    document.getElementById('mainChance').innerText = finalChance.toFixed(1) + '%';
-    document.getElementById('avg').innerText = Math.round(1 / rate) + ' Pulls';
+    const data = await res.json();
+
+    document.getElementById('mainChance').innerText = data.final_chance + '%';
+    document.getElementById('avg').innerText        = data.avg_pulls + ' Pulls';
 
     let text = '';
-
-    for (let i = 10; i <= maxPulls; i += 10) {
-        let chance = (1 - Math.pow(1 - rate, i)) * 100;
-
-        text += `
-        <div class="chance-card">
-            After <b>${i}</b> pulls you have a <b>${chance.toFixed(1)}%</b> chance of getting the SSR.
+    data.prob_cards.forEach(c => {
+        text += `<div class="chance-card">
+            After <b>${c.pulls}</b> pulls you have a <b>${c.chance}%</b> chance of getting the SSR.
         </div>`;
-    }
+    });
 
     document.getElementById('results').innerHTML = text;
 }
 </script>
-
 </body>
 </html>
