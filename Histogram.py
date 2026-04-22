@@ -21,10 +21,10 @@ class GachaSimulation:
         self.seed = seed
         random.seed(self.seed)
     
-    self._hoyo_last_featured = None
-    self._hoyo_lost_50_50 = False
+        self._hoyo_last_featured = None
+        self._hoyo_lost_50_50 = False
 
-    self._simulation_map = {
+        self._simulation_map = {
             "fgo": {
                 "rate_func": FGOrate,
                 "featured_func": check_fgo_featured,
@@ -57,11 +57,11 @@ class GachaSimulation:
             }
         }
     # Wrapper to handle Hoyoverse 50/50 tracking and pity system for featured SSRs
-    def _hoyoverse_featured_wrapper(self, roll):
+    def _hoyoverse_featured_wrapper(self, roll: int) -> Tuple[bool, str]:
         featured_chance = HoyoversePitySystem(
             roll, 
-            ssr_count,
-            self._hoyo_last_featured
+            previousSSRcount=0,
+            lastFeaturedRoll = self._hoyo_last_featured
         )
         
         is_featured = random.random() < featured_chance
@@ -81,7 +81,7 @@ class GachaSimulation:
     def simulateCurrency(self, game_id: str, currency: int, tickets: int = 0) -> Optional[Dict]:
         game = GAMES.get(game_id)
         if not game:
-            print("Game not found in {game_id} GAMES dictionary.")
+            print(f"Game not found in {game_id} GAMES dictionary.")
             return None
 
         pulls = currency // game["cost_per_pull"] + tickets
@@ -101,7 +101,7 @@ class GachaSimulation:
         
         return result
     # Simulation that uses specific rates and has external rulings
-    def simulateConfig(self, currency: int, game: Dict) -> Optional[Dict]:
+    def simulateConfig(self, game_config: Dict, currency: int, game: Dict) -> Optional[Dict]:
         if game_config.get("needs_state", False):
             self._hoyo_last_featured = None
             self._hoyo_lost_50_50 = False
@@ -131,48 +131,3 @@ class GachaSimulation:
             featuredRate=None,
             checkExternal=None
         )
-
-    # Tester function will delete later
-    def simulateDirect(self, currency: int, cost: int, rate: float,
-                       game_type: str = "default") -> Optional[Dict]:
-        # Direct Simulation for testing logic for tester later 
-        if game_type == "fgo":
-            result = gachaModel(
-                currency=currency,
-                cost=cost,
-                rate=rate,
-                seed=self.seed if self.seed else random.randint(1, 999999),
-                checkExternal=check_fgo_featured
-            )
-        elif game_type == "uma":
-            result = gachaModel(
-                currency=currency,
-                cost=cost,
-                rate=rate,
-                seed=self.seed if self.seed else random.randint(1, 999999),
-                checkExternal=check_uma_featured
-            )
-        elif game_type in ["genshin", "hoyoverse"]:
-            # Reset state for direct simulation
-            self._hoyo_last_featured = None
-            
-            def hoyo_wrapper(roll, ssr_count=0):
-                return self._hoyoverse_featured_wrapper(roll, ssr_count)
-            
-            result = gachaModel(
-                currency=currency,
-                cost=cost,
-                rate=rate,
-                seed=self.seed if self.seed else random.randint(1, 999999),
-                checkExternal=hoyo_wrapper
-            )
-        else:
-            result = gachaModel(
-                currency=currency,
-                cost=cost,
-                rate=rate,
-                seed=self.seed if self.seed else random.randint(1, 999999),
-                featuredRate=None
-            )
-        
-        return result
