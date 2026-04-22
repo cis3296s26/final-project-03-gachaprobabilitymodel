@@ -131,3 +131,42 @@ class GachaSimulation:
             featuredRate=None,
             checkExternal=None
         )
+    def simulate_histogram(self, currency: int, cost: int, rate_fn,
+                       featured_fn=None, game_type: str = None) -> Dict:
+        random.seed(self.seed)
+        total_rolls = math.floor(currency / cost)
+
+        pulls = []
+        featured_positions = []
+
+        if game_type in ("genshin", "hsr", "zzz"):
+            self._hoyo_last_featured = None
+            self._hoyo_lost_50_50 = False
+
+        for roll in range(1, total_rolls + 1):
+            chance = rate_fn(roll)
+            if random.random() < chance:
+                pulls.append(roll)
+
+                if featured_fn:
+                    if game_type in ("genshin", "hsr", "zzz"):
+                        is_featured, _ = self._hoyoverse_featured_wrapper(roll)
+                    else:
+                        is_featured, _ = featured_fn(roll)
+
+                    if is_featured:
+                        featured_positions.append(roll)
+
+        bin_size = max(1, math.floor(total_rolls / 40))
+        bins = {i: 0 for i in range(1, total_rolls + 1, bin_size)}
+        for p in pulls:
+            bin_key = ((p - 1) // bin_size) * bin_size + 1
+            bins[bin_key] = bins.get(bin_key, 0) + 1
+
+        return {
+            "bins": bins,
+            "bin_size": bin_size,
+            "pulls": pulls,
+            "featured_positions": featured_positions,
+            "total_rolls": total_rolls,
+        }

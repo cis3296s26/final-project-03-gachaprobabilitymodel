@@ -2,17 +2,56 @@ from flask import Flask, request, jsonify, render_template
 from Average import Average
 from Median import median
 from geometric import gachaModel
-from FGO import FGOrate
-from Umamusume import UMArate
+from FGO import FGOrate, check_fgo_featured, FGORateCalc
+from Umamusume import UMArate, check_uma_featured, UMARateCalc
+from HoyoverseGames import HoyoverseRate, HoyoversePitySystem, hoyoverseRateCalc
+from Histogram import GachaSimulation
 import random
 
 
 app = Flask(__name__)
 
 GAMES = {
-    "fgo": {"name": "Fate/Grand Order", "base_rate": 0.01, "cost_per_pull": 3},
-    "uma": {"name": "Uma Musume", "base_rate": 0.03, "cost_per_pull": 150},
-    "hoyverse": {"name": "Honkai: Star Rail", "base_rate": 0.06, "cost_per_pull": 160},
+    "fgo": {
+        "name": "Fate/Grand Order",
+        "base_rate": 0.01,
+        "cost_per_pull": 3,
+        "rate_fn": FGORateCalc,
+        "featured_fn": check_fgo_featured,
+        "game_type": "fgo"
+    },
+    "uma": {
+        "name": "Uma Musume",
+        "base_rate": 0.03,
+        "cost_per_pull": 150,
+        "rate_fn": UMARateCalc,
+        "featured_fn": check_uma_featured,
+        "game_type": "uma"
+    },
+    "genshin": {
+        "name": "Genshin Impact",
+        "base_rate": 0.006,
+        "cost_per_pull": 160,
+        "rate_fn": hoyoverseRateCalc,
+        "featured_fn": None,
+        "game_type": "hoyoverse"
+    },
+    "hsr": {
+        "name": "Honkai: Star Rail",
+        "base_rate": 0.006,
+        "cost_per_pull": 160,
+        "rate_fn": hoyoverseRateCalc,
+        "featured_fn": None,
+        "game_type": "hoyoverse"
+    },
+    "zzz": {
+        "name": "Zenless Zone Zero",
+        "base_rate": 0.006,
+        "cost_per_pull": 150,
+        "rate_fn": hoyoverseRateCalc,
+        "featured_fn": None,
+        "game_type": "hoyoverse"
+    },
 }
 
 @app.route("/")
@@ -93,5 +132,27 @@ def calculate():
                 "average_pulls": round(avg_pulls, 2),
                 "median_pulls": round(median_pulls, 2)
             })
+
+@app.route("/histogram", methods=["POST"])
+def histogram():
+    data     = request.get_json()
+    game_id  = data.get("game", "genshin")
+    currency = int(data.get("currency", 3200))
+    seed     =  random.randint(1, 10000)
+
+    if game_id not in GAMES:
+        return jsonify({"error": f"Unknown game '{game_id}'"}), 400
+
+    cfg = GAMES[game_id]
+    sim = GachaSimulation(seed=seed)
+    result = sim.simulate_histogram(
+        currency=currency,
+        cost=cfg["cost_per_pull"],
+        rate_fn=cfg["rate_fn"],
+        featured_fn=cfg["featured_fn"],
+        game_type=cfg["game_type"],
+    )
+    return jsonify(result)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
