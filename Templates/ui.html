@@ -137,9 +137,9 @@ function calculate(){
 function displayResults(data) {
   document.getElementById("results").innerHTML = `
     <div class="card"><b>Game:</b> ${data.game}<br><b>Total Pulls:</b> ${data.total_pulls}</div>
-    <div class="card"><b>Success Probability:</b> ${data.probability.toFixed(2)}%</div>
-    <div class="card"><b>Average Pulls to First SSR:</b> ${data.average_pulls}</div>
-    <div class="card"><b>Median Pulls to First SSR:</b> ${data.median_pulls}</div>
+    <div class="card"><b>SSR Hit Rate:</b> ${data.probability.toFixed(2)}%</div>
+    <div class="card"><b>Average Pull Position of SSR hits:</b> ${data.average_pulls}</div>
+    <div class="card"><b>Median Pull Position of SSR hits:</b> ${data.median_pulls}</div>
   `;
 }
 async function fetchHistogram() {
