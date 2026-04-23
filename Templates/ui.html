@@ -68,7 +68,6 @@ button{
 </style>
 </head>
 <body>
-
 <div class="top">Gacha SSR Simulator</div>
 
 <div class="box">
@@ -88,15 +87,19 @@ button{
   </div>
 
   <button onclick="calculate()">Calculate Probability</button>
-  <button onclick="fetchHistogram()">Show Pull Histogram</button>
+  <button onclick="fetchHistogram()" style="margin-top:10px;">Show Pull Histogram</button>
 
   <div id="results"></div>
+
+  <div id="histogramContainer" style="display:none; margin-top:20px;">
     <div class="card">
       <b>SSR Pull Distribution</b>
       <canvas id="histogramChart"></canvas>
     </div>
   </div>
+
 </div>
+</body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
