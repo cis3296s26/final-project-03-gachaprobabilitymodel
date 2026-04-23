@@ -1,7 +1,7 @@
 import math
 import random
-import Average
-import Median
+from Average import Average
+from Median import median
 from collections import Counter
 
 def gachaModel(
@@ -10,7 +10,8 @@ def gachaModel(
     rate: float,
     seed: int,
     featuredRate: float = None,
-    checkExternal = None
+    checkExternal=None,
+    custom_rate_calculator=None
 ):
     if currency < cost:
         print("Not enough currency to pull.")
@@ -27,10 +28,10 @@ def gachaModel(
     rollResults = []
 
     for roll in range(1, rolls + 1):
-        currentRate = rateCalculator(roll)
+        # Use custom rate if given else base rate
+        currentRate = custom_rate_calculator(roll) if custom_rate_calculator else rate
 
         if random.random() < currentRate:
-        # Check if SSR is hit
             successes += 1
             pulls.append(roll)
 
@@ -48,7 +49,6 @@ def gachaModel(
                     if firstFeaturedHit is None:
                         firstFeaturedHit = roll
                 else:
-                    isFeatured = False
                     featuredName = "Off rate Unit"
 
             elif checkExternal is not None:
@@ -73,16 +73,9 @@ def gachaModel(
             })
 
     empMean = Average(pulls) if successes > 0 else 0
-    empMedian = Median(pulls) if successes > 0 else 0
+    empMedian = median(pulls) if successes > 0 else 0
     theoMean = 1 / rate
-
-    rates = [rateCalculator(roll) for roll in range(1, rolls + 1)]
-    avgRate = Average(rates) if len(rates) > 0 else 0
-    theoVariance = (1 - avgRate) / (avgRate ** 2) if avgRate > 0 else 0
-    
-    # Calculate variance
-    theoVariance = (1 - rate) / (rate ** 2) if rate > 0 else 0
-
+    theoVariance = (1 - rate) / (rate ** 2) if rate > 0 else 0 
     empSuccessRate = successes / rolls if rolls > 0 else 0
     featuredRateEmp = featuredSuccesses / successes if successes > 0 else 0
 
