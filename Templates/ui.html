@@ -76,7 +76,9 @@ button{
     <select id="game">
       <option value="fgo">Fate/Grand Order</option>
       <option value="uma">Uma Musume</option>
-      <option value="hoyverse">Honkai: Star Rail</option>
+      <option value="hsr">Honkai: Star Rail</option>
+      <option value="genshin">Genshin Impact</option>
+      <option value="zzz">Zenless Zone Zero</option>
     </select>
   </div>
 
@@ -86,44 +88,43 @@ button{
   </div>
 
   <button onclick="calculate()">Calculate Probability</button>
+  <button onclick="fetchHistogram()">Show Pull Histogram</button>
 
   <div id="results"></div>
+    <div class="card">
+      <b>SSR Pull Distribution</b>
+      <canvas id="histogramChart"></canvas>
+    </div>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-// Update game info when selection changes
+let histogramChartInstance = null;
+
 document.getElementById("game").addEventListener("change", function() {
-  const gameSelect = this.value;
-  fetch(`/select_game/${gameSelect}`)
-    .then(response => response.json())
-    .then(data => {
-      console.log("Game selected:", data);
-    })
+  fetch(`/select_game/${this.value}`)
+    .then(r => r.json())
+    .then(data => console.log("Game selected:", data))
     .catch(error => console.error("Error:", error));
 });
+
 
 function calculate(){
   const game = document.getElementById("game").value;
   const currency = parseInt(document.getElementById("currency").value) || 0;
   const tickets = parseInt(document.getElementById("tickets").value) || 0;
 
-  const payload = {
-    game: game,
-    currency: currency,
-    tickets: tickets
-  };
-
   fetch("/calculate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify( { game, currency, tickets } )
   })
-  .then(response => response.json())
-  .then(data => {
-    displayResults(data);
-  })
+  .then(r => r.json())
+  .then(data => displayResults(data))
   .catch(error => {
     console.error("Error:", error);
     document.getElementById("results").innerHTML = `<div class="card">Error: ${error}</div>`;
@@ -131,48 +132,64 @@ function calculate(){
 }
 
 function displayResults(data) {
-  let html = `
-    <div class="card">
-      <b>Game:</b> ${data.game}<br>
-      <b>Total Pulls:</b> ${data.total_pulls}
-    </div>
-    <div class="card">
-      <b>Success Probability:</b> ${data.probability.toFixed(2)}%
-    </div>
-    <div class="card">
-      <b>Average Pulls to First SSR:</b> ${data.average_pulls}
-    </div>
-    <div class="card">
-      <b>Median Pulls to First SSR:</b> ${data.median_pulls}
-    </div>
+  document.getElementById("results").innerHTML = `
+    <div class="card"><b>Game:</b> ${data.game}<br><b>Total Pulls:</b> ${data.total_pulls}</div>
+    <div class="card"><b>Success Probability:</b> ${data.probability.toFixed(2)}%</div>
+    <div class="card"><b>Average Pulls to First SSR:</b> ${data.average_pulls}</div>
+    <div class="card"><b>Median Pulls to First SSR:</b> ${data.median_pulls}</div>
   `;
-  document.getElementById("results").innerHTML = html;
 }
-<script/>
-  async function calc() {
-    let rate     = Number(document.getElementById('rate').value) / 100;
-    let maxPulls = Number(document.getElementById('pulls').value);
-    let target   = Number(document.getElementById('goal').value);
+async function fetchHistogram() {
+  const game     = document.getElementById("game").value;
+  const currency = parseInt(document.getElementById("currency").value) || 3200;
 
-    const res = await fetch("/calculate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game: "fgo", currency: target * 3, tickets: 0 })
-    });
+  const res  = await fetch("/histogram", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ game, currency })
+  });
+  const data = await res.json();
 
-    const data = await res.json();
+  if (data.error) {
+    alert(data.error);
+    return;
+  }
 
-    document.getElementById('mainChance').innerText = data.final_chance + '%';
-    document.getElementById('avg').innerText        = data.avg_pulls + ' Pulls';
+  const labels = Object.keys(data.bins).map(k => `Roll ${k}`);
+  const values = Object.values(data.bins);
 
-    let text = '';
-    data.prob_cards.forEach(c => {
-        text += `<div class="chance-card">
-            After <b>${c.pulls}</b> pulls you have a <b>${c.chance}%</b> chance of getting the SSR.
-        </div>`;
-    });
+  document.getElementById("histogramContainer").style.display = "block";
 
-    document.getElementById('results').innerHTML = text;
+  // destroy previous
+  if (histogramChartInstance) histogramChartInstance.destroy();
+
+  histogramChartInstance = new Chart(document.getElementById("histogramChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "SSR Hits per Bin",
+        data: values,
+        backgroundColor: "rgba(230, 67, 143, 0.5)",
+        borderColor: "#e6438f",
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { display: false },   
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
 }
 </script>
 </body>
