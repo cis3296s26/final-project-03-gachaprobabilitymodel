@@ -1,20 +1,12 @@
 import math
 import random
-from collections import Counter
 from typing import Optional, List, Dict, Any, Tuple
 
 from geometric import gachaModel
 from FGO import FGOrate, check_fgo_featured, FGORateCalc
 from Umamusume import UMArate, check_uma_featured, UMARateCalc
 from HoyoverseGames import HoyoverseRate, HoyoversePitySystem, hoyoverseRateCalc
-from app import GAMES, currency as appCurrency
 
-
-try:
-    from app import app
-    import requests
-except ImportError:
-    requests = None
 
 class GachaSimulation:
     def __init__(self, seed: int = None):
@@ -78,28 +70,6 @@ class GachaSimulation:
         return is_featured, character
     
 
-    def simulateCurrency(self, game_id: str, currency: int, tickets: int = 0) -> Optional[Dict]:
-        game = GAMES.get(game_id)
-        if not game:
-            print(f"Game not found in {game_id} GAMES dictionary.")
-            return None
-
-        pulls = currency // game["cost_per_pull"] + tickets
-        
-        print(f"Game: {game['name']}")
-        print(f"Total pulls: {pulls} ({currency} currency + {tickets} tickets)")
-        print(f"Base rate: {game['base_rate']*100:.1f}%")
-
-        game_config = self._simulation_map.get(game_id)
-        
-        if game_config:
-            # Use game-specific simulation
-            result = self.simulateConfig(game_config, currency, game)
-        else:
-            # Use default simulation
-            result = self.simulateDefault(currency, game)
-        
-        return result
     # Simulation that uses specific rates and has external rulings
     def simulateConfig(self, game_config: Dict, currency: int, game: Dict) -> Optional[Dict]:
         if game_config.get("needs_state", False):
