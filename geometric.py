@@ -72,6 +72,29 @@ def gachaModel(
                 "featured_name": None
             })
 
+    # after the pull loop, calculate gaps between SSRs
+    gaps = []
+    prev = 0
+    for p in pulls:
+        gaps.append(p - prev)
+        prev = p
+
+    # bin the gaps instead of positions
+    bin_size = max(1, math.floor(rollResults / 40))
+    bins = {i: 0 for i in range(1, rollResults + 1, bin_size)}
+    for g in gaps:
+        bin_key = ((g - 1) // bin_size) * bin_size + 1
+        bins[bin_key] = bins.get(bin_key, 0) + 1
+
+    return {
+        "bins": bins,
+        "bin_size": bin_size,
+        "pulls": pulls,
+        "gaps": gaps,          # add this
+        "featured_positions": featuredSuccesses,
+        "total_rolls": rolls,
+    }
+
     empMean = Average(pulls) if successes > 0 else 0
     empMedian = median(pulls) if successes > 0 else 0
     theoMean = 1 / rate
