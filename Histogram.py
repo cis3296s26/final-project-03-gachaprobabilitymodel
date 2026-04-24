@@ -132,7 +132,7 @@ class GachaSimulation:
         for p in pulls:
             gaps.append(p - prev)
             prev = p
-        gap.sort()
+        gaps.sort()
 
         bin_size = max(1, math.floor(total_rolls / 40))
         bins = {i: 0 for i in range(1, total_rolls + 1, bin_size)}
