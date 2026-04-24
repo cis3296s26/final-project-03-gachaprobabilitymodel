@@ -1,5 +1,3 @@
-import geometric
-from flask import Flask, request, jsonify
 def HoyoverseRate(roll, pitySSR=False):
     if roll < 75:
         chance = 0.006
