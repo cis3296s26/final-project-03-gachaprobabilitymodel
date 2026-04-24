@@ -158,7 +158,7 @@ async function fetchHistogram() {
     return;
   }
 
-  const labels = Object.keys(data.bins).map(k => `Roll ${k}`);
+  const labels = Object.keys(data.bins).map(k => `Gap ${k}`);
   const values = Object.values(data.bins);
 
   document.getElementById("histogramContainer").style.display = "block";

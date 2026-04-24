@@ -127,16 +127,24 @@ class GachaSimulation:
                     if is_featured:
                         featured_positions.append(roll)
 
+        gaps = []
+        prev = 0
+        for p in pulls:
+            gaps.append(p - prev)
+            prev = p
+        gap.sort()
+
         bin_size = max(1, math.floor(total_rolls / 40))
         bins = {i: 0 for i in range(1, total_rolls + 1, bin_size)}
-        for p in pulls:
-            bin_key = ((p - 1) // bin_size) * bin_size + 1
+        for i in gaps:
+            bin_key = ((i - 1) // bin_size) * bin_size + 1
             bins[bin_key] = bins.get(bin_key, 0) + 1
 
         return {
             "bins": bins,
             "bin_size": bin_size,
             "pulls": pulls,
+            "gaps": gaps,
             "featured_positions": featured_positions,
             "total_rolls": total_rolls,
         }
